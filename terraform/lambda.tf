@@ -1,13 +1,12 @@
 resource "aws_lambda_function" "notify_on_upload" {
   function_name = "notifyOnUploadFunction"
   role          = aws_iam_role.lambda_exec.arn
-  handler       = "lambda_function.lambda_handler"
+  handler       = "handler.lambda_handler"
   runtime       = "python3.12"
+  timeout       = 10
 
-  timeout = 10
-
-  filename         = "build/notify.zip" # 可换成你已有的路径
-  source_code_hash = filebase64sha256("build/notify.zip")
+  filename         = "${path.module}/../backend/lambda/notify_on_upload/notify_on_upload.zip"
+  source_code_hash = filebase64sha256("${path.module}/../backend/lambda/notify_on_upload/notify_on_upload.zip")
 
   environment {
     variables = {
