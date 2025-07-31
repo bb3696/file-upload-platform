@@ -1,0 +1,13 @@
+# Terraform
+.terraform/
+terraform.tfstate
+terraform.tfstate.*
+crash.log
+*.tfplan
+*.zip
+
+# Node / Java / Python
+node_modules/
+target/
+__pycache__/
+.DS_Store
