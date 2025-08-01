@@ -24,7 +24,7 @@ const FileLookupPage = () => {
   useEffect(() => {
     const fetchFiles = async () => {
       try {
-        const res = await axios.get("https://1y307xfre8.execute-api.us-east-1.amazonaws.com/prod/api/files/lookup");
+        const res = await axios.get("https://1qcshbwwya.execute-api.us-east-1.amazonaws.com/api/files/lookup");
         const sorted = [...res.data].sort(
         (a, b) => new Date(b.uploadTime) - new Date(a.uploadTime) // 最新在上
       );
@@ -42,7 +42,7 @@ const FileLookupPage = () => {
   if (!window.confirm(`Are you sure you want to delete ${filename}?`)) return;
 
   try {
-    await axios.delete(`https://1y307xfre8.execute-api.us-east-1.amazonaws.com/prod/api/files/delete/${filename}`);
+    await axios.delete(`https://1qcshbwwya.execute-api.us-east-1.amazonaws.com/api/files/delete/${filename}`);
     setFiles(prev => prev.filter(f => f.filename !== filename)); // 更新前端列表
   } catch (err) {
     console.error("Delete failed:", err);

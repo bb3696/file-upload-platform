@@ -26,7 +26,7 @@ const FileUploadForm = () => {
 
         try {
             const response = await axios.post(
-                'https://1y307xfre8.execute-api.us-east-1.amazonaws.com/prod/api/files/upload', 
+                'https://1qcshbwwya.execute-api.us-east-1.amazonaws.com/api/files/upload', 
                 formData, 
                 {
                     headers: {"Content-Type": "multipart/form-data",},
