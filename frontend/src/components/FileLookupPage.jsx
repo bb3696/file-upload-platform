@@ -24,11 +24,18 @@ const FileLookupPage = () => {
   useEffect(() => {
     const fetchFiles = async () => {
       try {
-        const res = await axios.get("https://1qcshbwwya.execute-api.us-east-1.amazonaws.com/api/files/lookup");
-        const sorted = [...res.data].sort(
-        (a, b) => new Date(b.uploadTime) - new Date(a.uploadTime) // 最新在上
-      );
-      setFiles(sorted);
+        const res = await axios.get(import.meta.env.VITE_LOOKUP_URL);
+        console.log("Fetched files:", res.data);
+
+        if (Array.isArray(res.data)) {
+          const cleaned = res.data.filter(f => f.filename && f.s3Url);
+          const sorted = cleaned.sort(
+            (a, b) => new Date(b.uploadTime) - new Date(a.uploadTime)
+          );
+          setFiles(sorted);
+        } else {
+          setFiles([]);
+        }
       } catch (err) {
         console.error("Fetch error:", err);
         setError("Failed to fetch file list.");
@@ -42,7 +49,7 @@ const FileLookupPage = () => {
   if (!window.confirm(`Are you sure you want to delete ${filename}?`)) return;
 
   try {
-    await axios.delete(`https://1qcshbwwya.execute-api.us-east-1.amazonaws.com/api/files/delete/${filename}`);
+    await axios.delete(`${import.meta.env.VITE_DELETE_URL}/${filename}`);
     setFiles(prev => prev.filter(f => f.filename !== filename)); // 更新前端列表
   } catch (err) {
     console.error("Delete failed:", err);

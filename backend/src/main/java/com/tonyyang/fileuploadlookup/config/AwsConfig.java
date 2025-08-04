@@ -12,7 +12,7 @@ public class AwsConfig {
     @Bean
     public DynamoDbClient dynamoDbClient() {
         return DynamoDbClient.builder()
-                .region(Region.US_EAST_1) // 替换成你实际的 AWS 区域
+                .region(Region.US_EAST_1) 
                 .build();
     }
 

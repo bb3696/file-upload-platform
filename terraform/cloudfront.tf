@@ -10,19 +10,20 @@ resource "aws_cloudfront_distribution" "frontend_cdn" {
   enabled             = true
   is_ipv6_enabled     = true
   default_root_object = "index.html"
+  aliases             = ["fileupload.tonyyang972.com"] 
   price_class         = "PriceClass_All"
   wait_for_deployment = true
 
   origin {
     domain_name              = "file-upload-frontend-tony.s3.us-east-1.amazonaws.com"
-    origin_id                = "file-upload-frontend-tony.s3-website-us-east-1.amazonaws.com-mdcrqdmir38"
+    origin_id                = "file-upload-frontend-tony-origin"
     origin_access_control_id = aws_cloudfront_origin_access_control.oac.id
     connection_attempts      = 3
     connection_timeout       = 10
   }
 
   default_cache_behavior {
-    target_origin_id       = "file-upload-frontend-tony.s3-website-us-east-1.amazonaws.com-mdcrqdmir38"
+    target_origin_id       = "file-upload-frontend-tony-origin"
     viewer_protocol_policy = "redirect-to-https"
 
     allowed_methods  = ["GET", "HEAD"]
@@ -52,8 +53,9 @@ resource "aws_cloudfront_distribution" "frontend_cdn" {
   }
 
   viewer_certificate {
-    cloudfront_default_certificate = true
-    minimum_protocol_version       = "TLSv1"
+    acm_certificate_arn      = "arn:aws:acm:us-east-1:896520308122:certificate/ac6a14f8-bc08-47b7-a983-e02a529b906e"
+    ssl_support_method       = "sni-only"
+    minimum_protocol_version = "TLSv1.2_2021"
   }
 
   tags = {

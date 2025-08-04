@@ -1,6 +1,5 @@
 package com.tonyyang.fileuploadlookup.controller;
 
-import com.tonyyang.fileuploadlookup.model.FileMetadata;
 import com.tonyyang.fileuploadlookup.service.FileMetadataService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -8,9 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.List;
 
-import org.springframework.http.MediaType;
 
 @RestController
 @RequestMapping("/api/files") //定义所有接口以 /api/files 开头
