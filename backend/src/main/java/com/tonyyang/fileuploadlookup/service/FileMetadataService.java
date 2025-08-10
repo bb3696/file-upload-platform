@@ -2,6 +2,7 @@ package com.tonyyang.fileuploadlookup.service;
 // 创建 Service 类：把 FileMetadata 写入 DynamoDB。
 
 import com.tonyyang.fileuploadlookup.model.FileMetadata; //引入你刚创建的模型类存入DynamoDB
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service; //用于标记这个类为 Spring 的 Service 组件，会被自动注册到 Spring 容器
 
 // 从 AWS SDK v2 引入的类：
@@ -28,6 +29,12 @@ public class FileMetadataService {
     private final DynamoDbClient dynamoDbClient; // 用于和 DynamoDB 通信的客户端，设为成员变量以供整个类使用
     private final S3Client s3Client;
 
+    @Value("${app.s3.bucket:tony-upload-bucket}")
+    private String bucketName;
+
+    @Value("${app.dynamodb.table:FileMetadata}")
+    private String tableName;
+
     public FileMetadataService(DynamoDbClient dynamoDbClient, S3Client s3Client) {
         this.dynamoDbClient = dynamoDbClient;
         this.s3Client = s3Client;
@@ -37,7 +44,6 @@ public class FileMetadataService {
 
         String key = "uploads/" + file.getOriginalFilename();
 
-        String bucketName = "tony-upload-bucket";
         PutObjectRequest putRequest = PutObjectRequest.builder()
                 .bucket(bucketName)
                 .key(key)
@@ -61,7 +67,6 @@ public class FileMetadataService {
 
         // 创建一个写入请求，指定表名和刚刚构建好的 item
         // 表示你要操作的 DynamoDB 表名。必须和 AWS 控制台创建的表名一致。
-        String tableName = "FileMetadata";
         PutItemRequest request =  PutItemRequest.builder()
                 .tableName(tableName)
                 .item(item)
@@ -85,7 +90,7 @@ public class FileMetadataService {
     public void deleteFile(String filename) {
         // 1. 删除 S3 对象
         s3Client.deleteObject(DeleteObjectRequest.builder()
-                .bucket("tony-upload-bucket")
+                .bucket(bucketName)
                 .key("uploads/" + filename)
                 .build());
 
@@ -94,9 +99,28 @@ public class FileMetadataService {
         key.put("filename", AttributeValue.fromS(filename));
 
         dynamoDbClient.deleteItem(DeleteItemRequest.builder()
-                .tableName("FileMetadata")
+                .tableName(tableName)
                 .key(key)
                 .build());
+    }
+
+    public List<FileMetadata> listFiles() {
+        ScanRequest scanRequest = ScanRequest.builder()
+                .tableName(tableName)
+                .build();
+        ScanResponse response = dynamoDbClient.scan(scanRequest);
+
+        List<FileMetadata> results = new ArrayList<>();
+        for (Map<String, AttributeValue> item : response.items()) {
+            FileMetadata metadata = new FileMetadata();
+            metadata.setFilename(item.getOrDefault("filename", AttributeValue.fromS("")).s());
+            metadata.setUploadTime(item.getOrDefault("uploadTime", AttributeValue.fromS("")).s());
+            metadata.setS3Url(item.getOrDefault("s3Url", AttributeValue.fromS("")).s());
+            String sizeStr = item.getOrDefault("size", AttributeValue.fromN("0")).n();
+            metadata.setSize(Long.parseLong(sizeStr));
+            results.add(metadata);
+        }
+        return results;
     }
 }
 
